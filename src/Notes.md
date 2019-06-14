@@ -7,7 +7,7 @@
 - Together with position and direction the Rover receives at startup the dimensions of the grid of coordinates
 
 **Coordinates**
-- It's a set of two numbers to indicate the position of an object on the planet surface
+- It's a set of two numbers to indicate the position of an object on the Planet surface
 
 **Direction**
 - Possible values: N,S,E,W

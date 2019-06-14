@@ -6,6 +6,11 @@ namespace MarsRoverKata.Test
     [TestClass]
     public class DirectionTest
     {
+        /// <summary>
+        /// Tests the turning right logic for each starting direction
+        /// </summary>
+        /// <param name="start">Starting direction</param>
+        /// <param name="end">Expected direction after the turn command is executed</param>
         [DataTestMethod]
         [DataRow("N", "E")]
         [DataRow("E", "S")]
@@ -21,6 +26,11 @@ namespace MarsRoverKata.Test
             Assert.AreEqual(expected, actual);
         }
 
+        /// <summary>
+        /// Tests the turning left logic for each starting direction
+        /// </summary>
+        /// <param name="start">Starting direction</param>
+        /// <param name="end">Expected direction after the turn command is executed</param>
         [DataTestMethod]
         [DataRow("N", "W")]
         [DataRow("E", "N")]
