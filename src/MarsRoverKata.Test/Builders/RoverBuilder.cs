@@ -6,7 +6,7 @@ namespace MarsRoverKata.Test
     {
         private int initialPositionX = Planet.MinX;
         private int initialPositionY = Planet.MinY;
-        private Direction initialDirection = DirectionsList.N;
+        private string initialDirection = "N";
 
         public RoverBuilder LandedIn(int x, int y)
         {
@@ -16,17 +16,16 @@ namespace MarsRoverKata.Test
             return this;
         }
 
-        public RoverBuilder DirectedTowards(Direction direction)
+        public RoverBuilder DirectedTowards(string directionCode)
         {
-            initialDirection = direction;
+            initialDirection = directionCode;
 
             return this;
         }
 
         public Rover Build()
         {
-            var initialPosition = Coordinates.Create(initialPositionX, initialPositionY);
-            return Rover.Create(initialPosition, initialDirection);
+            return Rover.Create(initialPositionX, initialPositionY, initialDirection);
         }
     }
 }

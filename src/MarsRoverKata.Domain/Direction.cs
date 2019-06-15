@@ -42,12 +42,12 @@ namespace MarsRoverKata.Domain
 
         public static Direction GetByIndex(byte index)
         {
-            return DirectionsList.AllDirections.Single(x => x.Index == index);
+            return AllDirections.Single(x => x.Index == index);
         }
 
         public static Direction GetByCode(string code)
         {
-            return DirectionsList.AllDirections.Single(x => x.Code == code);
+            return AllDirections.SingleOrDefault(x => x.Code == code);
         }
     }
 }
