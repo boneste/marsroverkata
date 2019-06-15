@@ -7,6 +7,8 @@ namespace MarsRoverKata.Domain
 {
     public class Direction
     {
+        protected Direction() { }
+        
         public int Index { get; protected set; }
         public string Code { get; protected set; }
 

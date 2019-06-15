@@ -3,6 +3,7 @@ namespace MarsRoverKata.Domain
     public enum ResultCode
     {
         CommandExecuted,
-        CommandNotRecognized
+        CommandNotRecognized,
+        ObstacleFound
     }
 }

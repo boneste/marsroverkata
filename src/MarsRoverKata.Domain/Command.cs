@@ -7,6 +7,8 @@ namespace MarsRoverKata.Domain
 {
     public class Command
     {
+        protected Command() { }
+        
         public char Code { get; protected set; }
 
         public Command(char code)

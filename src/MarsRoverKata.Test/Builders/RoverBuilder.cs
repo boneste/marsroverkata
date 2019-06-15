@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MarsRoverKata.Domain;
 
 namespace MarsRoverKata.Test
@@ -7,6 +8,7 @@ namespace MarsRoverKata.Test
         private int initialPositionX = Planet.MinX;
         private int initialPositionY = Planet.MinY;
         private string initialDirection = "N";
+        private List<Coordinates> obstacleMap = new List<Coordinates>();
 
         public RoverBuilder LandedIn(int x, int y)
         {
@@ -23,9 +25,18 @@ namespace MarsRoverKata.Test
             return this;
         }
 
+        public RoverBuilder WithObstacleDetectionSystem(Dictionary<int, int> map)
+        {
+            foreach(var item in map)
+                obstacleMap.Add(Coordinates.Create(item.Key, item.Value));
+            
+            return this;
+        }
+
         public Rover Build()
         {
-            return Rover.Create(initialPositionX, initialPositionY, initialDirection);
+            var obstacleDetector = ObstacleDetector.Create(obstacleMap);
+            return Rover.Create(initialPositionX, initialPositionY, initialDirection, obstacleDetector);
         }
     }
 }

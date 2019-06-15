@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MarsRoverKata.Domain;
 using System;
+using System.Collections.Generic;
 
 namespace MarsRoverKata.Test
 {
@@ -8,6 +9,7 @@ namespace MarsRoverKata.Test
      * - Create rover succesfully
      * - Pass an invalid initialDirection during creation
      * - Pass an invalid initialPosition during creation
+     * - The creation withouth obstacle detection system will fail
      * - Move the rover forward
      * - Move the rover backward
      * - Turn the rover left
@@ -15,6 +17,7 @@ namespace MarsRoverKata.Test
      * - The rover receives an invalid command
      * - Test multiple commands
      * - Test multiple commands with an invalid command in it
+     * - Test multiple commands execution with obstacle on the path
      */
     [TestClass]
     public class RoverTest
@@ -28,11 +31,12 @@ namespace MarsRoverKata.Test
             int initialPositionX = 1;
             int initialPositionY = 2;
             string initialDirection = "N";
+            var obstacleDetector = ObstacleDetector.Create(new List<Coordinates>());
 
             var initialPosition = Coordinates.Create(initialPositionX, initialPositionY);
             var direction = DirectionsList.GetByCode(initialDirection);
 
-            var rover = Rover.Create(initialPositionX, initialPositionY, initialDirection);
+            var rover = Rover.Create(initialPositionX, initialPositionY, initialDirection, obstacleDetector);
 
             Assert.AreEqual(direction, rover.Direction);
             Assert.AreEqual(initialPosition, rover.Position);
@@ -47,6 +51,7 @@ namespace MarsRoverKata.Test
             int initialPositionX = 1;
             int initialPositionY = 2;
             string direction = "E";
+            var obstacleDetector = ObstacleDetector.Create(new List<Coordinates>());
 
             var actual = new RoverBuilder().LandedIn(initialPositionX, initialPositionY)
                                            .DirectedTowards(direction)
@@ -66,6 +71,21 @@ namespace MarsRoverKata.Test
         {
             var actual = new RoverBuilder().DirectedTowards("Z")
                                            .Build();
+        }
+
+        /// <summary>
+        /// Tests that the rover cannot be instantiated without an obstacle detection system
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Create_WithouthObstacleDetectionSystem()
+        {
+            int initialPositionX = 1;
+            int initialPositionY = 2;
+            string initialDirection = "N";
+            var obstacleDetector = ObstacleDetector.Null;
+
+            var rover = Rover.Create(initialPositionX, initialPositionY, initialDirection, obstacleDetector);
         }
 
         /// <summary>
@@ -233,6 +253,29 @@ namespace MarsRoverKata.Test
             var result = rover.ExecuteCommandSequence(commands);
 
             Assert.AreEqual(ResultCode.CommandNotRecognized, result.Result);
+            Assert.AreEqual(expectedPosition, rover.Position);
+            Assert.AreEqual(expectedDirection, rover.Direction);
+        }
+
+        /// <summary>
+        /// Tests a sequence of commands when obstacles are on the path
+        /// </summary>
+        [TestMethod]
+        public void MovementWithObstacleOnThePath()
+        {
+            var obstacleMap = new Dictionary<int, int>() { {99, 3} };
+
+            var rover = new RoverBuilder().LandedIn(1, 1)
+                                          .DirectedTowards("N")
+                                          .WithObstacleDetectionSystem(obstacleMap)
+                                          .Build();
+            var commands = new char[] { 'f', 'f', 'r', 'b', 'b' };
+            var expectedPosition = Coordinates.Create(0, 3);
+            var expectedDirection = DirectionsList.E;
+
+            var result = rover.ExecuteCommandSequence(commands);
+
+            Assert.AreEqual(ResultCode.ObstacleFound, result.Result);
             Assert.AreEqual(expectedPosition, rover.Position);
             Assert.AreEqual(expectedDirection, rover.Direction);
         }

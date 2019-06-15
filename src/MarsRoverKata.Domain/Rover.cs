@@ -4,11 +4,26 @@ namespace MarsRoverKata.Domain
 {
     public class Rover
     {
+        protected Rover() { }
+
+        private ObstacleDetector obstacleDetector;
         public Coordinates Position { get; protected set; }
         public Direction Direction { get; protected set; }
 
-        public static Rover Create(int initialPositionX, int initialPositionY, string direction)
+        /// <summary>
+        /// Instantiates a new Rover instance given the initial position coordinates, the initial direction
+        /// and provides the Rover with an obstacle detection system
+        /// </summary>
+        /// <param name="initialPositionX">The starting X position on planet surface</param>
+        /// <param name="initialPositionY">The starting Y position on planet surface</param>
+        /// <param name="direction">The starting direction on planet surface</param>
+        /// <param name="obstacleDetector">The obstacle detection system is mandatory for safely reasons</param>
+        /// <returns></returns>
+        public static Rover Create(int initialPositionX, int initialPositionY, string direction, ObstacleDetector obstacleDetector)
         {
+            if (obstacleDetector == null)
+                throw new ArgumentNullException($"{nameof(obstacleDetector)}");
+
             var initialPosition = Coordinates.Create(initialPositionX, initialPositionY);
             var initialDirection = DirectionsList.GetByCode(direction);
 
@@ -18,6 +33,7 @@ namespace MarsRoverKata.Domain
             Rover newRover = new Rover();
             newRover.Position = initialPosition;
             newRover.Direction = initialDirection;
+            newRover.obstacleDetector = obstacleDetector;
             return newRover;
         }
 
@@ -38,10 +54,13 @@ namespace MarsRoverKata.Domain
             {
                 output.Result = ExecuteSingleCommand(commands[i]);
 
-                switch(output.Result)
+                switch (output.Result)
                 {
                     case ResultCode.CommandNotRecognized:
                         output.Message = $"Command '{commands[i]}' at position {i} was not recognized as valid, the rover stopped processing other commands";
+                        return output;
+                    case ResultCode.ObstacleFound:
+                        output.Message = $"An obstacle was detected trying to execute command '{commands[i]}' at position {i}, the rover stopped processing other commands";
                         return output;
                     default:
                         break;
@@ -64,14 +83,20 @@ namespace MarsRoverKata.Domain
             if (command == null)
                 return ResultCode.CommandNotRecognized;
 
+            Coordinates newPosition = Position;
             if (command == CommandsList.MoveForward)
-                Position = Position.GetForwardMovementCoordinates(Direction);
+                newPosition = Position.GetForwardMovementCoordinates(Direction);
             if (command == CommandsList.MoveBackward)
-                Position = Position.GetBackwardMovementCoordinates(Direction);
+                newPosition = Position.GetBackwardMovementCoordinates(Direction);
             if (command == CommandsList.TurnLeft)
                 Direction = Direction.TurnLeft();
             if (command == CommandsList.TurnRight)
                 Direction = Direction.TurnRight();
+
+            if (obstacleDetector.VerifyCoordinates(newPosition))
+                return ResultCode.ObstacleFound;
+
+            Position = newPosition;
 
             return ResultCode.CommandExecuted;
         }

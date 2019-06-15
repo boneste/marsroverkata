@@ -5,6 +5,8 @@ namespace MarsRoverKata.Domain
 {
     public class Coordinates : ValueObject
     {
+        protected Coordinates() { }
+        
         public int X { get; protected set; }
         public int Y { get; protected set; }
 
